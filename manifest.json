@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "id": "saltare.sveglia",
+  "name": "Sveglia",
+  "version": "0.1.0",
+  "author": "Jack Thorne",
+  "license": "MIT",
+  "description": "A countdown in the bar. Pick a duration and the number ticks down where you can see it; the alarm is a transient systemd user unit, so it fires once and survives a shell restart. No account, no network, no CLI.",
+  "kinds": [
+    "bar-widget"
+  ],
+  "entryPoints": {
+    "barWidget": "Timer.qml"
+  },
+  "barWidget": {
+    "displayName": "Sveglia",
+    "description": "A countdown timer — visible only while one is running.",
+    "category": "Time",
+    "aliases": [
+      "sveglia",
+      "timer",
+      "countdown"
+    ],
+    "allowMultiple": false,
+    "defaultSection": "right",
+    "defaults": {
+      "statePath": ""
+    },
+    "schema": [
+      {
+        "key": "statePath",
+        "type": "path",
+        "label": "State file",
+        "defaultValue": "",
+        "description": "Defaults to $XDG_STATE_HOME/sveglia/timer.json"
+      }
+    ]
+  }
+}
