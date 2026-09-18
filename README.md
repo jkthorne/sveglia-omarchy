@@ -1,8 +1,8 @@
 # saltare.sveglia
 
 A countdown timer for the [Omarchy](https://omarchy.org) bar. Pick a duration,
-watch the number, get a toast. It is the desktop half of
-[sveglia](https://github.com/jkthorne/sveglia), the fleet's clock app.
+watch the number, get a toast. It is the desktop half of sveglia, the fleet's
+clock app.
 
 ```
 ⏱ 4:32
@@ -133,10 +133,9 @@ printf '{"schema":1,"label":"10 seconds","duration_sec":10,"ends_at":"%s"}\n' \
 ## Why this is the only fleet app with a bar widget
 
 The fleet has ten phone apps and exactly one of them earns a slot here. The
-argument is written down in
-[saltare-machina's `docs/linux-desktop.md` §11](https://github.com/jkthorne/saltare-machina):
-a bar slot is for **continuous state you glance at**, not for a list you go
-to. A running countdown is the best-shaped bar widget there is. Notes, files,
+argument is written down in saltare-machina's `docs/linux-desktop.md` §11: a
+bar slot is for **continuous state you glance at**, not for a list you go to.
+A running countdown is the best-shaped bar widget there is. Notes, files,
 photos and contacts are things you go to, and they are reachable from
 saltare.workspace's capture field instead.
 
