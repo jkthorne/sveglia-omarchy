@@ -73,25 +73,35 @@ test("a second remaining rounds up, so the bar never shows 0:00 while running", 
   assert.equal(view.running, true)
 })
 
-test("a timer past its end is not running, and leaves the bar", () => {
-  // systemd raised the toast; what is left here is a widget that should get
-  // out of the way.
-  const view = Model.view(Model.parse(running(300)), NOW + 300_001)
+test("a timer past its end stops counting and drops its number", () => {
+  // systemd raised the toast; what is left here is a glyph, not a countdown
+  // frozen at 0:00.
+  const view = Model.view(Model.parse(running(300)), NOW + 300_001, { showWhenIdle: false })
   assert.equal(view.running, false)
-  assert.equal(view.visible, false)
   assert.equal(view.badge, "")
+  assert.equal(view.visible, false)
 })
 
-test("nothing counting means nothing in the bar", () => {
-  const view = Model.view(Model.idle(), NOW)
-  assert.equal(view.visible, false)
-  assert.equal(view.badge, "")
+test("an idle timer still has a bar slot, or you could never start one", () => {
+  // This widget is a control, not a display. The popup anchors to the bar
+  // button, so hiding the button when nothing is counting makes the timer
+  // unstartable — which is exactly what the first version of it did.
+  const view = Model.view(Model.idle(), NOW, {})
+  assert.equal(view.visible, true)
   assert.equal(view.running, false)
+  assert.equal(view.badge, "", "an idle glyph carries no number")
+})
+
+test("showWhenIdle off gives the disappearing version back", () => {
+  const view = Model.view(Model.idle(), NOW, { showWhenIdle: false })
+  assert.equal(view.visible, false)
+  // And a running timer still shows, whatever the setting says.
+  assert.equal(Model.view(Model.parse(running(300)), NOW, { showWhenIdle: false }).visible, true)
 })
 
 test("the last minute is urgent, and the minute before it is not", () => {
-  assert.equal(Model.view(Model.parse(running(300)), NOW + 240_000).urgent, true)
-  assert.equal(Model.view(Model.parse(running(300)), NOW + 239_000).urgent, false)
+  assert.equal(Model.view(Model.parse(running(300)), NOW + 240_000, {}).urgent, true)
+  assert.equal(Model.view(Model.parse(running(300)), NOW + 239_000, {}).urgent, false)
 })
 
 // ── what it runs ────────────────────────────────────────────────────────
@@ -150,7 +160,7 @@ test("the document the widget writes ends when the unit fires", () => {
 // ── the popup ───────────────────────────────────────────────────────────
 
 test("every row knows the command its enter key runs", () => {
-  for (const view of [Model.view(Model.idle(), NOW), Model.view(Model.parse(running(300)), NOW)]) {
+  for (const view of [Model.view(Model.idle(), NOW, {}), Model.view(Model.parse(running(300)), NOW, {})]) {
     for (const row of Model.rows(view)) {
       assert.notEqual(row.command, "", row.kind + " has no command")
     }
@@ -158,7 +168,7 @@ test("every row knows the command its enter key runs", () => {
 })
 
 test("a running timer puts its own cancel at the top", () => {
-  const rows = Model.rows(Model.view(Model.parse(running(300)), NOW + 60_000))
+  const rows = Model.rows(Model.view(Model.parse(running(300)), NOW + 60_000, {}))
   assert.equal(rows[0].kind, "cancel")
   assert.equal(rows[0].section, "RUNNING")
   assert.equal(rows[0].sub, "4:00")
@@ -166,7 +176,7 @@ test("a running timer puts its own cancel at the top", () => {
 })
 
 test("with nothing running the presets lead, and say so", () => {
-  const rows = Model.rows(Model.view(Model.idle(), NOW))
+  const rows = Model.rows(Model.view(Model.idle(), NOW, {}))
   assert.equal(rows[0].kind, "preset")
   assert.equal(rows[0].section, "START")
   assert.equal(rows.length, Model.presets().length)
@@ -199,9 +209,9 @@ test("the widget is declared in the manifest, or the bar cannot load it", () => 
   assert.ok(fs.existsSync(path.join(__dirname, "..", manifest.entryPoints.barWidget)))
 })
 
-test("the bar slot collapses to nothing when no timer is running", () => {
+test("the bar slot collapses to nothing when the widget is hidden", () => {
   // Without an implicit size the root is 0x0 and the widget draws nothing at
-  // all; with an unconditional one it leaves a gap in an idle bar.
+  // all; with an unconditional one it leaves a gap when showWhenIdle is off.
   const source = fs.readFileSync(path.join(__dirname, "..", "Timer.qml"), "utf8")
   assert.match(source, /implicitWidth: button\.visible \? button\.implicitWidth : 0/)
   assert.match(source, /implicitHeight: button\.visible \? button\.implicitHeight : 0/)

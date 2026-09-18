@@ -83,7 +83,7 @@ function presetFor(key) {
 
 // ── the view ────────────────────────────────────────────────────────────
 
-function view(snapshot, nowMs) {
+function view(snapshot, nowMs, settings) {
   var doc = (snapshot && snapshot.doc) || null
   var running = snapshot && snapshot.status === "running" && doc
   var remaining = running ? remainingSeconds(doc, nowMs) : 0
@@ -95,9 +95,18 @@ function view(snapshot, nowMs) {
     remaining: remaining,
     label: running ? String(doc.label || "") : "",
     duration: running ? number(doc.duration_sec, 0) : 0,
-    // Nothing in the bar when nothing is counting. A timer widget that is
-    // always visible is a widget that is always lying about being busy.
-    visible: !!running && remaining > 0,
+    // This widget is a control, not a display, and that is the whole reason
+    // it shows an idle glyph. Hiding when nothing counts reads well — a bar
+    // that is quiet when there is nothing to say is the one people keep — and
+    // it was the first version of this line. It also made the timer
+    // unstartable: the popup anchors to the bar button, so a button that is
+    // not there is a widget you cannot click. The glyph is the affordance;
+    // the number is the state.
+    //
+    // showWhenIdle: false restores the disappearing version for anyone who
+    // binds `omarchy-shell sveglia toggle` to a key and does not need the
+    // affordance.
+    visible: (!!running && remaining > 0) || bool(settings && settings.showWhenIdle, true),
     badge: running && remaining > 0 ? format(remaining) : "",
     // Under a minute it is worth looking at rather than glancing at.
     urgent: !!running && remaining > 0 && remaining <= 60,
@@ -208,6 +217,11 @@ function iso(date) {
 // today; "ours today" is how a command injection gets written.
 function shellQuote(value) {
   return "'" + String(value).replace(/'/g, "'\\''") + "'"
+}
+
+function bool(value, fallback) {
+  if (value === undefined || value === null) return fallback
+  return !!value
 }
 
 function number(value, fallback) {

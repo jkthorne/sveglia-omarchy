@@ -56,13 +56,23 @@ Three problems solved at once, and none of them by the widget:
 
 What is left for the widget is the number, which is what a widget is for.
 
-## The bar slot is empty unless something is counting
+## A glyph when idle, a number when counting
 
-There is no idle icon. A timer widget that is always visible is a widget that
-is always claiming to be busy, and the whole value of a countdown in a bar is
-that its presence means something.
-
+The bar shows `⏱` with nothing running and `⏱ 4:32` with something running.
 The last minute draws in the bar's urgent colour.
+
+The first version of this hid the widget entirely when idle — a bar that is
+quiet when it has nothing to say is the one people keep. It also made the
+timer unstartable, because the popup anchors to the bar button and a button
+that is not there is a widget you cannot click. **This one is a control, not a
+display.** The glyph is the affordance; the number is the state.
+
+`showWhenIdle: false` gives the disappearing version back, for anyone who
+binds a key to it:
+
+```lua
+o.bind("SUPER + SHIFT + T", "Timer", "omarchy-shell sveglia toggle")
+```
 
 ## Keys
 
@@ -87,6 +97,7 @@ file is also what a failed write leaves behind.
 | Key | Default | What it does |
 |---|---|---|
 | `statePath` | `$XDG_STATE_HOME/sveglia/timer.json` | where the countdown is kept |
+| `showWhenIdle` | `true` | off hides the widget until a timer is counting |
 
 ## Hacking
 

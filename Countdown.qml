@@ -28,7 +28,7 @@ Item {
   readonly property string statePath: Model.statePath(
     settings ? settings.statePath : "", Quickshell.env("XDG_STATE_HOME"), home)
 
-  readonly property var view: Model.view(snapshot, nowMs)
+  readonly property var view: Model.view(snapshot, nowMs, settings)
   readonly property var rows: Model.rows(view)
 
   signal changed()

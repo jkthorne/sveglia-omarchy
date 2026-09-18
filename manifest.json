@@ -14,7 +14,7 @@
   },
   "barWidget": {
     "displayName": "Sveglia",
-    "description": "A countdown timer — visible only while one is running.",
+    "description": "A countdown timer \u2014 a glyph when idle, the time remaining when running.",
     "category": "Time",
     "aliases": [
       "sveglia",
@@ -24,7 +24,8 @@
     "allowMultiple": false,
     "defaultSection": "right",
     "defaults": {
-      "statePath": ""
+      "statePath": "",
+      "showWhenIdle": true
     },
     "schema": [
       {
@@ -33,6 +34,13 @@
         "label": "State file",
         "defaultValue": "",
         "description": "Defaults to $XDG_STATE_HOME/sveglia/timer.json"
+      },
+      {
+        "key": "showWhenIdle",
+        "type": "boolean",
+        "label": "Show with no timer running",
+        "defaultValue": true,
+        "description": "Off hides the widget until a timer is counting \u2014 bind omarchy-shell sveglia toggle to a key first, or you cannot start one."
       }
     ]
   }
